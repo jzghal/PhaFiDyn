@@ -200,7 +200,8 @@ def postprocessing(Incr, Res_folder, base_file, Data):
     elastic_energy_value = assemble(Elastic_energy)
     kinetic_energy_value = assemble(Kinetic_energy)
     surface_energy_value = assemble(Dissipated_energy)
-    external_energy_value = assemble(External_energy)
+    external_energy_value = ext_energy
+
 
     total_energy_value = surface_energy_value + elastic_energy_value + kinetic_energy_value - external_energy_value  
     
@@ -1251,6 +1252,7 @@ Data = []  # List to store simulation data
 # Initialization
 Incr = 0 
 t = Constant(0)
+ext_energy = 0.
 
 # Loop over the loads
 errphi  = Function(Vdam)
@@ -1298,7 +1300,9 @@ while float(t) < T:
     print("Error Linf: %2.8g, phi_max: %.8g" % (ERROR, phi.vector().max()))
     
     timestep = time.process_time() - start
-    
+
+    ext_energy += float(dt)*assemble(External_energy)
+
     # Perform post-processing and data storage
     postprocessing(Incr, Res_folder, base_file, Data)
     
@@ -1323,9 +1327,3 @@ liste.append(str(RunningTime))
 with open(Res_folder + base_file + 'RunningTime.dat', 'w') as filout:
     for lst in liste:
         filout.write(f"{lst}")
-
-               
-
-        
-
-     
